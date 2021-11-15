@@ -1,0 +1,11 @@
+~id,~label,name:String,stat_totalEmailOpened:Int,stat_messagesSent:Int,stat_messagesDelivered:Int,stat_dailyActive:Int,stat_newPlayers:Int
+2d23028e-f31c-4b81-854d-f6756f48da0e,campaign,Anyone  various.,24,100,57,62,5
+7e4d42a6-3171-4c1b-b313-a12803066647,campaign,Authority  edge.,24,100,56,59,6
+78aba68e-bdf8-48d0-86ca-9dc43b177bac,campaign,Night  training.,24,100,60,54,7
+c3a5b770-c7f0-424d-aa2d-d7917f563eb1,campaign,Price  need  rich.,26,100,59,56,3
+6dd5168b-2cca-42f6-b232-0b8e0dce9c70,campaign,Everything  figure.,24,100,62,53,5
+885da374-1613-46db-8574-f5989836626b,campaign,Worry  everything.,25,100,60,51,5
+88c388bb-a1a1-4038-84c7-468eb75a45f2,campaign,Wrong  imagine.,23,100,58,64,4
+31513a3b-7999-4afa-9963-d2bcf2599a35,campaign,Around  fund  fire.,23,100,58,61,4
+299e0729-4ef9-4704-acdb-c0c87762a346,campaign,Turn  half  company.,25,100,62,71,6
+7a4b3f4c-6a2d-4379-b34c-8d20c3c0ebeb,campaign,Within  nation  can.,23,100,59,55,5

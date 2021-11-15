@@ -1,0 +1,844 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  cohort-sam
+
+  Sample SAM Template for cohort-sam
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Parameters:
+  DBInstanceClass:
+    Description: Neptune DB instance class that will be used for primary and all replicas
+    Type: String
+    Default: db.r4.large
+    AllowedValues:
+      - db.r5.large
+      - db.r4.large
+      - db.r4.xlarge
+      - db.r4.2xlarge
+      - db.r4.4xlarge
+      - db.r4.8xlarge
+
+  IpAddress:
+    Description: Your IP Address to be entered into the Jupyter Notebook security group.
+    Type: String
+
+Mappings:
+  RegionMap:
+    ap-southeast-1:
+      AZ1: "ap-southeast-1a"
+      AZ2: "ap-southeast-1b"
+    ap-southeast-2:
+      AZ1: "ap-southeast-2a"
+      AZ2: "ap-southeast-2b"
+    ap-southeast-3:
+      AZ1: "ap-southeast-3a"
+      AZ2: "ap-southeast-3b"
+    ap-northeast-1:
+      AZ1: "ap-northeast-1a"
+      AZ2: "ap-northeast-1b"
+    ap-northeast-2:
+      AZ1: "ap-northeast-2a"
+      AZ2: "ap-northeast-2b"
+    ap-south-1:
+      AZ1: "ap-south-1a"
+      AZ2: "ap-south-1b"
+    ap-east-1:
+      AZ1: "ap-east-1a"
+      AZ2: "ap-east-1b"
+    ca-central-1:
+      AZ1: "ca-central-1a"
+      AZ2: "ca-central-1b"
+    eu-central-1:
+      AZ1: "eu-central-1a"
+      AZ2: "eu-central-1b"
+    eu-west-1:
+      AZ1: "eu-west-1a"
+      AZ2: "eu-west-1b"
+    eu-west-2:
+      AZ1: "eu-west-2a"
+      AZ2: "eu-west-2b"
+    eu-west-3:
+      AZ1: "eu-west-3a"
+      AZ2: "eu-west-3b"
+    eu-north-1:
+      AZ1: "eu-north-1a"
+      AZ2: "eu-north-1b"
+    me-south-1:
+      AZ1: "me-south-1a"
+      AZ2: "me-south-1b"
+    sa-east-1:
+      AZ1: "sa-east-1a"
+      AZ2: "sa-east-1b"
+    us-east-1:
+      AZ1: "us-east-1a"
+      AZ2: "us-east-1b"
+    us-east-2:
+      AZ1: "us-east-2a"
+      AZ2: "us-east-2b"
+    us-west-1:
+      AZ1: "us-west-1a"
+      AZ2: "us-west-1b"
+    us-west-2:
+      AZ1: "us-west-2a"
+      AZ2: "us-west-2b"
+
+Resources:
+  ApiPlayerPut:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/player/methods/put
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        API:
+          Type: Api
+          Properties:
+            Path: /data/player/{player}
+            Method: put
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPlayerPost:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/player/methods/post
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /data/player/{player}
+            Method: post
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPlayerGet:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/player/methods/get
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /data/player/{player}
+            Method: get
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPlayerDelete:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/player/methods/delete
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /data/player/{player}
+            Method: delete
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiCampaignPut:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/campaign/methods/put
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        API:
+          Type: Api
+          Properties:
+            Path: /data/campaign/{campaign}
+            Method: put
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiCampaignPost:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/campaign/methods/post
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        API:
+          Type: Api
+          Properties:
+            Path: /data/campaign/{campaign}
+            Method: post
+      Layers:
+        - !Ref ValidationLayer
+  
+  ApiCampaignDelete:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/campaign/methods/delete
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        API:
+          Type: Api
+          Properties:
+            Path: /data/campaign/{campaign}
+            Method: delete
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPlayerInteractionPut:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/player/interaction/methods/put
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /data/player/{player}/interaction
+            Method: put
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPlayerInteractionGet:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/player/interaction/methods/get
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /data/player/{player}/interaction
+            Method: get
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPlayerRelationshipGet:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/player/relationship/methods/get
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /data/player/{player}/relationship
+            Method: get
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPredictionCollaborativeFilter:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/prediction/collaborativeFilter/methods/get
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /prediction/collaborativeFilter
+            Method: get
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPredictionTriadicClosure:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/prediction/triadicClosure/methods/get
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /prediction/triadicClosure
+            Method: get
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPredictionBadActors:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/prediction/badActors/methods/get
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /prediction/badActors
+            Method: get
+      Layers:
+        - !Ref ValidationLayer
+
+  ApiPredictionRelatedUsers:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - CohortVpc
+    Properties:
+      CodeUri: api/prediction/relatedUsers/methods/get
+      Handler: app.handler
+      Runtime: python3.8
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref CohortApiLambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateCohortSubnet1
+          - !Ref PrivateCohortSubnet2
+      Environment:
+        Variables:
+          NeptuneEndpoint:
+            Fn::GetAtt: [CohortNeptuneDBCluster, Endpoint]
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /prediction/relatedUsers
+            Method: get
+      Layers:
+        - !Ref ValidationLayer
+
+  ValidationLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: layers
+      CompatibleRuntimes:
+        - python3.8
+    Metadata:
+      BuildMethod: python3.8
+
+  CohortVpc:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+
+  PublicCohortSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref CohortVpc
+      AvailabilityZone: !FindInMap
+        - RegionMap
+        - !Ref 'AWS::Region'
+        - AZ1
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+
+  PrivateCohortSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref CohortVpc
+      AvailabilityZone: !FindInMap
+        - RegionMap
+        - !Ref 'AWS::Region'
+        - AZ1
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: false
+
+  PrivateCohortSubnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref CohortVpc
+      AvailabilityZone: !FindInMap
+        - RegionMap
+        - !Ref 'AWS::Region'
+        - AZ2
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: false
+
+  CohortInternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+
+  AttachInternetGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref CohortVpc
+      InternetGatewayId: !Ref CohortInternetGateway
+
+  CohortPublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref CohortVpc
+
+  CohortPublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: AttachInternetGateway
+    Properties:
+      RouteTableId: !Ref CohortPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref CohortInternetGateway
+
+  CohortPublicSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicCohortSubnet1
+      RouteTableId: !Ref CohortPublicRouteTable
+
+  CohortPrivateRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref CohortVpc
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateCohortSubnet1
+      RouteTableId: !Ref CohortPrivateRouteTable
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateCohortSubnet2
+      RouteTableId: !Ref CohortPrivateRouteTable
+
+  CohortS3Endpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:Get*'
+              - 's3:List*'
+            Resource:
+              - 'arn:aws:s3:::*'
+      VpcEndpointType: Gateway
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      RouteTableIds:
+        - !Ref CohortPrivateRouteTable
+      VpcId: !Ref CohortVpc
+
+  CohortNeptuneDBSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG of Neptune DB
+      VpcId:
+        !Ref CohortVpc
+      SecurityGroupIngress:
+        - CidrIp: !Sub '10.0.0.0/16'
+          IpProtocol: "tcp"
+          FromPort: 8182
+          ToPort: 8182
+      SecurityGroupEgress:
+        - CidrIp: !Sub '10.0.0.0/16'
+          IpProtocol: "tcp"
+          FromPort: 8182
+          ToPort: 8182
+        - CidrIp: !Sub '0.0.0.0/0'
+          IpProtocol: -1
+          FromPort: 0
+          ToPort: 65535
+
+  CohortNeptuneDBCluster:
+    Type: 'AWS::Neptune::DBCluster'
+    Properties:
+      StorageEncrypted: True
+      AvailabilityZones:
+        - !FindInMap
+          - RegionMap
+          - !Ref 'AWS::Region'
+          - AZ1
+        - !FindInMap
+          - RegionMap
+          - !Ref 'AWS::Region'
+          - AZ2
+      AssociatedRoles:
+        - RoleArn: !GetAtt CohortNeptuneRole.Arn
+      DBSubnetGroupName: !Ref CohortNeptuneDBSubnetGroup
+      VpcSecurityGroupIds:
+        - !Ref CohortNeptuneDBSG
+
+  CohortNeptuneDBSubnetGroup:
+    Type: AWS::Neptune::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "Subnets for Cohort Neptune Database"
+      SubnetIds:
+        - !Ref PrivateCohortSubnet1
+        - !Ref PrivateCohortSubnet2
+
+  CohortNeptuneDBInstance:
+    Type: "AWS::Neptune::DBInstance"
+    Properties:
+      AutoMinorVersionUpgrade: true
+      DBInstanceClass: !Ref DBInstanceClass
+      DBClusterIdentifier:
+        !Ref CohortNeptuneDBCluster
+
+  CohortNeptuneRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'Cohort-neptune-iam-role-${AWS::StackName}'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - monitoring.rds.amazonaws.com
+                - rds.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - !Ref CohortNeptuneCloudWatchPolicy
+        - !Ref CohortNeptuneS3Policy
+
+  CohortNeptuneS3Policy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      Description: Neptune default policy for S3 access for data load
+      ManagedPolicyName: !Sub "Cohort-neptune-s3-policy-${AWS::StackName}"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: "AllowNeptuneAccessToS3"
+            Effect: Allow
+            Action:
+              - 's3:Get*'
+              - 's3:List*'
+            Resource:
+              - !Sub 'arn:aws:s3:::*'
+
+  CohortNeptuneCloudWatchPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      Description: Default policy for CloudWatch logs
+      ManagedPolicyName: !Sub "Cohort-neptune-cw-policy-${AWS::StackName}"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: "EnableLogGroups"
+            Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:PutRetentionPolicy
+            Resource:
+              - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/neptune/*
+          - Sid: "EnableLogStreams"
+            Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - logs:DescriptLogStreams
+              - logs:GetLogEvents
+            Resource:
+              - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/neptune/*:log-stream:*
+
+  CohortJupyterNotebookSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: "Security Group for the Public Cohort Jupyter Notebook"
+      VpcId: !Ref CohortVpc
+      SecurityGroupIngress:
+        - CidrIp: !Sub '${IpAddress}/32'
+          IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+        - CidrIp: !Sub '${IpAddress}/32'
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+      SecurityGroupEgress:
+        - CidrIp: !Sub '10.0.0.0/16'
+          IpProtocol: -1
+          FromPort: 0
+          ToPort: 65535
+
+  CohortApiLambdaSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: "Security Group for API Lambda functions"
+      VpcId: !Ref CohortVpc
+      SecurityGroupIngress:
+        - CidrIp: !Sub '10.0.0.0/16'
+          IpProtocol: "tcp"
+          FromPort: 8182
+          ToPort: 8182
+        - CidrIp: !Sub '10.0.0.0/16'
+          IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+        - CidrIp: !Sub '10.0.0.0/16'
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+      SecurityGroupEgress:
+        - CidrIp: !Sub '10.0.0.0/16'
+          IpProtocol: -1
+          FromPort: 0
+          ToPort: 65535
+
+
+  CohortJupyterNotebook:
+    Type: 'AWS::SageMaker::NotebookInstance'
+    Properties:
+      InstanceType: 'ml.t3.medium'
+      SubnetId: !Ref PublicCohortSubnet1
+      SecurityGroupIds:
+        - !GetAtt CohortJupyterNotebookSecurityGroup.GroupId
+      RoleArn: !GetAtt CohortNotebookExecutionRole.Arn
+      LifecycleConfigName: !GetAtt CohortNotebookInstanceLifecycleConfig.NotebookInstanceLifecycleConfigName
+
+  CohortNotebookInstanceLifecycleConfig:
+    Type: "AWS::SageMaker::NotebookInstanceLifecycleConfig"
+    Properties:
+      OnStart:
+        - Content:
+            Fn::Base64:
+              Fn::Join:
+                - ''
+                - - "#!/bin/bash\n"
+                  - sudo -u ec2-user -i << 'EOF'
+                  - "\n"
+                  - echo 'export GRAPH_NOTEBOOK_AUTH_MODE=
+                  - "DEFAULT' >> ~/.bashrc\n"
+                  - echo 'export GRAPH_NOTEBOOK_HOST=
+                  - !GetAtt CohortNeptuneDBCluster.Endpoint
+                  - "' >> ~/.bashrc\n"
+                  - echo 'export GRAPH_NOTEBOOK_PORT=
+                  - !GetAtt CohortNeptuneDBCluster.Port
+                  - "' >> ~/.bashrc\n"
+                  - echo 'export NEPTUNE_LOAD_FROM_S3_ROLE_ARN=
+                  - !GetAtt CohortNeptuneRole.Arn
+                  - "' >> ~/.bashrc\n"
+                  - echo 'export AWS_REGION=
+                  - !Ref AWS::Region
+                  - "' >> ~/.bashrc\n"
+                  - aws s3 cp s3://aws-neptune-notebook/graph_notebook.tar.gz /tmp/graph_notebook.tar.gz
+                  - "\n"
+                  - rm -rf /tmp/graph_notebook
+                  - "\n"
+                  - tar -zxvf /tmp/graph_notebook.tar.gz -C /tmp
+                  - "\n"
+                  - /tmp/graph_notebook/install.sh
+                  - "\n"
+                  - aws s3 cp s3://aws-neptune-customer-samples/aws-gametech-blog/cohort-modeler/data/seed/ /home/ec2-user/anaconda3/envs/JupyterSystemEnv/lib/python3.6/site-packages/graph_notebook/seed/queries/propertygraph/cohort_modeler/ --recursive
+                  - "\n"
+                  - aws s3 cp s3://aws-neptune-customer-samples/aws-gametech-blog/cohort-modeler/CohortModelerSampleNotebook.ipynb /home/ec2-user/SageMaker/
+                  - "\n"
+                  - EOF
+
+  CohortNotebookExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - sagemaker.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: !Sub "CohortSagemakerNeptunePolicy-${AWS::StackName}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                Resource:
+                  - !Sub arn:${AWS::Partition}:cloudwatch:${AWS::Region}:${AWS::AccountId}:*
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                Resource:
+                  - !Sub arn:${AWS::Partition}:cloudwatch:${AWS::Region}:${AWS::AccountId}:*
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:List*
+                Resource:
+                  - !Sub arn:${AWS::Partition}:s3:::*
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - neptune-db:connect
+                  - s3:List*
+                Resource:
+                  - !Sub arn:${AWS::Partition}:s3:::*
+                  - !Sub arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:cluster:*
+  CohortModelerBucket:
+    Type: "AWS::S3::Bucket"
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  CohortAPiEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
