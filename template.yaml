@@ -24,10 +24,6 @@ Parameters:
       - db.r4.4xlarge
       - db.r4.8xlarge
 
-  IpAddress:
-    Description: Your IP Address to be entered into the Jupyter Notebook security group.
-    Type: String
-
 Mappings:
   RegionMap:
     ap-southeast-1:
@@ -691,15 +687,6 @@ Resources:
     Properties:
       GroupDescription: "Security Group for the Public Cohort Jupyter Notebook"
       VpcId: !Ref CohortVpc
-      SecurityGroupIngress:
-        - CidrIp: !Sub '${IpAddress}/32'
-          IpProtocol: "tcp"
-          FromPort: 443
-          ToPort: 443
-        - CidrIp: !Sub '${IpAddress}/32'
-          IpProtocol: "tcp"
-          FromPort: 80
-          ToPort: 80
       SecurityGroupEgress:
         - CidrIp: !Sub '10.0.0.0/16'
           IpProtocol: -1
