@@ -50,7 +50,7 @@ You can find your API Gateway Endpoint URL in the output values displayed after 
 
 ## Cohort Model API
 
-The Cohort Modeler deploys several APIs to interacte with and better understand your player cohorts. In the first section below, you have CRUD APIs for interacting with our default defined data model. We define three types of vertices - `player`, `action`, and `campaign`. Documentation for each API is below. 
+The Cohort Modeler deploys several APIs to interact with and better understand your player cohorts. In the first section below, you have CRUD APIs for interacting with our default defined data model. We define three types of vertices - `player`, `action`, and `campaign`. Documentation for each API is below. 
 
 As you cannot define schemas in TinkerPop, we implement schema control and API validation in code using Lamabda Layers. This can be found in `layers/validation.py`. Each API function uses that shared layer in accordance with an intended purpose. For example, `GET player` uses the validation layer to vefiy the vertex exists; `PUT interaction` calls use the layer to validate API parameters in accordance with your cohort schema. 
 
