@@ -761,7 +761,7 @@ Resources:
                   - "\n"
                   - /tmp/graph_notebook/install.sh
                   - "\n"
-                  - aws s3 cp s3://aws-neptune-customer-samples/aws-gametech-blog/cohort-modeler/data/seed/ /home/ec2-user/anaconda3/envs/JupyterSystemEnv/lib/python3.6/site-packages/graph_notebook/seed/queries/propertygraph/cohort_modeler/ --recursive
+                  - aws s3 cp s3://aws-neptune-customer-samples/aws-gametech-blog/cohort-modeler/data/seed/ /home/ec2-user/anaconda3/envs/JupyterSystemEnv/lib/python3.7/site-packages/graph_notebook/seed/queries/propertygraph/cohort_modeler/ --recursive
                   - "\n"
                   - aws s3 cp s3://aws-neptune-customer-samples/aws-gametech-blog/cohort-modeler/CohortModelerSampleNotebook.ipynb /home/ec2-user/SageMaker/
                   - "\n"
